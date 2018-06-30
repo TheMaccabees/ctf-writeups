@@ -1,0 +1,38 @@
+    1 rem ======================
+    2 rem === back to basics ===
+    3 rem ======================
+   10 printchr$(155):printchr$(147)
+   20 poke 53280, 6:poke 53281, 6:
+   25 print"loading..."
+   30 data 2,1,3,11,32,32,81,81,81,32,32,32,32,81,32,32,32,32,81,81,81,81,32,81,81,81,81,81,32,32,81,81,81,81,32,32,87,87,87,87
+   31 data 32,32,32,32,32,32,81,32,32,81,32,32,81,32,81,32,32,81,32,32,32,32,32,32,32,81,32,32,32,81,32,32,32,32,32,87,32,32,32,32
+   32 data 20,15,32,32,32,32,81,81,81,32,32,81,32,32,32,81,32,32,81,81,81,32,32,32,32,81,32,32,32,81,32,32,32,32,32,32,87,87,87,32
+   33 data 32,32,32,32,32,32,81,32,32,81,32,81,81,81,81,81,32,32,32,32,32,81,32,32,32,81,32,32,32,81,32,32,32,32,32,32,32,32,32,87
+   34 data 20,8,5,32,32,32,81,81,81,32,32,81,32,32,32,81,32,81,81,81,81,32,32,81,81,81,81,81,32,32,81,81,81,81,32,87,87,87,87,32
+   40 for i = 0 to 39: poke 55296 + i, 1: next i
+   41 for i = 40 to 79: poke 55296 + i, 15: next i
+   42 for i = 80 to 119: poke 55296 + i, 12: next i
+   43 for i = 120 to 159: poke 55296 + i, 11: next i
+   44 for i = 160 to 199: poke 55296 + i, 0: next i
+   50 for i = 0 to 199
+   51 read c : poke 1024 + i, c
+   52 next i
+   60 print:print:print:print:print
+   70 poke 19,1: print"password please?" chr$(5): input ""; p$: poke 19,0
+   80 print:print:printchr$(155) "processing... (this might take a while)":print"[                    ]"
+   90 chkoff = 11 * 40 + 1
+  200 if len(p$) = 30 then goto 250
+  210 poke 1024 + chkoff + 0, 86:poke 55296 + chkoff + 0, 10
+  220 goto 31337
+  250 poke 1024 + chkoff + 0, 83:poke 55296 + chkoff + 0, 5
+ 2000 rem never gonna give you up
+ 2001 rem
+ 2010 poke 03397, 00199 : poke 03398, 00013 : goto 2001
+ 31337 print:print"verdict: nope":goto 31345
+ 31345 goto 31345
+ 2001 poke 03397, 00069 : poke 03398, 00013
+ 2002 poke 1024 + chkoff + 1, 81:poke 55296 + chkoff + 1, 7
+ 2004 es = 03741 : ee = 04981 : ek = 148
+ 2005 for i = es to ee : k = ( peek(i) + ek ) and 255 : poke i, k : next i
+ 2009 poke 1024 + chkoff + 1, 87
+ 29510 peekrestore{grn}restoreclrcontnewnewnewnewnewnewnewnewnewnewnewcmdsysopencmdnewsysopengetnewclosecmdrestore{CTRL-W}restoreclrcontclrclrclrclrclrclrclrclrclrsysopensystoopenclrnewcloseopennewgetopentonewfnnewsystofnclrnewsysgetrestorespc(restore<restore{grn}restoreclr{$6c}{$71}{$7b}p{$73}^/restore{grn}restore2saverestore6savelogstopprint#restorecmdprint#restorecmdverifyrestoreverify{$6c}if{$7b}q{$73}^^restore{grn}restore2saverestore6savelogstopprint#restoresysprint#restorecmdverifyrestoreverify{$6c}help{$7b}u{$73}logclrrestore{grn}restoreclrspc(logcmdrestore{grn}restoreclrspc(logsysrestore{grn}restoreclrspc(logopenrestore{grn}restoreclrspc(logcloserestore{grn}restoreclrspc(loggetrestore{grn}restoreclrspc(lognewrestore{grn}restoreclrspc(logtab(restore{grn}restoreclrspc(logtorestore{grn}restoreclrspc(logfnrestore{grn}restoreclrspc(log/restore{grn}restoreclrspc(log^restore{grn}restoreclrspc(logandrestore{grn}restoreclr{$6c}({$7b}z{$73}deleterestore^/restore{esc}restorecmdrestore{home}restorelogclrrestore{grn}restoreclrcontclrnewsysgetclrclrclrclrclrclrclrcmdtocmdtofntofncloseclropengetclosegettogetnewclosetab(gettoopenclrclrtab(tocmdsysget{$6c}{$67}{$7b}[{$73}deleterestore^/restore{esc}restoresysrestore{home}restorelogcmdrestore{grn}restoreclrcontclrcmdgetnewsysgetclrclrclrclrclrclrclosegetclosetab(closetab(opengetclrtotonewclosenewclosecmdcmdtofngettab(getcmdfngetopencmdsys{$6c}spc({$7c}\{$73}deleterestore^/restore{esc}restorecloserestore{home}restorelogsysrestore{grn}restoreclrcontclrclropenfnclrnewsysgetclrclrclrclrcmdcmdopennewtonewtoopentab(tab(syscmdnewcmdnewclrsysfntab(openfnopentab(fntotosysto{$6c}draw{$7c}]{$73}deleterestore^/restore{esc}restoretorestore{home}restorelogopenrestore{grn}restoreclrcontclrclrclrfntab(newgetnewsysgetclrclrclrsystoclosesyscmdtab(clrfncloseopenclrcloseclrcloseclrclrtab(closeopenclosetocloseclosefntab(clrtab({$6c}%{$7c}^{$73}deleterestore^/restore{esc}restorecmdnewrestore{home}restorelogcloserestore{grn}restoreclrcontclrclrclrsyscloseclosecmdcloseclrnewsysgetclrclrtab(cmdclrgetclosesystab(opengettab(newclrcmdclrclrcmdtoge

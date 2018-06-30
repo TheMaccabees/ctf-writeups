@@ -1,0 +1,61 @@
+REM START ADDRESS: $0801
+REM END ADDRESS+1: $87BF
+REM SIZE (BYTES):   32702
+
+       # comment
+    1   REM ======================
+    2   REM === BACK TO BASICS ===
+    3   REM ======================
+       # light gray text & clear screen
+   10   PRINT CHR$(155) : PRINT CHR$(147)
+       # set border color & background color
+   20   POKE 53280, 6 : POKE 53281, 6 :
+       # print "loading"
+   25   PRINT "LOADING..."
+   30   DATA 2,1,3,11,32,32,81,81,81,32,32,32,32,81,32,32,32,32,81,81,81,81,32,81,81,81,81,81,32,32,81,81,81,81,32,32,87,87,87,87
+   31   DATA 32,32,32,32,32,32,81,32,32,81,32,32,81,32,81,32,32,81,32,32,32,32,32,32,32,81,32,32,32,81,32,32,32,32,32,87,32,32,32,32
+   32   DATA 20,15,32,32,32,32,81,81,81,32,32,81,32,32,32,81,32,32,81,81,81,32,32,32,32,81,32,32,32,81,32,32,32,32,32,32,87,87,87,32
+   33   DATA 32,32,32,32,32,32,81,32,32,81,32,81,81,81,81,81,32,32,32,32,32,81,32,32,32,81,32,32,32,81,32,32,32,32,32,32,32,32,32,87
+   34   DATA 20,8,5,32,32,32,81,81,81,32,32,81,32,32,32,81,32,81,81,81,81,32,32,81,81,81,81,81,32,32,81,81,81,81,32,87,87,87,87,32
+       # something with colors
+   40   FOR I = 0 TO 39 : POKE 0xD800 + I, 1 : NEXT I
+   41   FOR I = 40 TO 79 : POKE 0xD800 + I, 15 : NEXT I
+   42   FOR I = 80 TO 119 : POKE 0xD800 + I, 12 : NEXT I
+   43   FOR I = 120 TO 159 : POKE 0xD800 + I, 11 : NEXT I
+   44   FOR I = 160 TO 199 : POKE 0xD800 + I, 0 : NEXT I
+       # write the DATA to address 1024, which is screen memory, which displays "BACK TO THE BASICS":
+       #
+       #   BACK  QQQ    Q    QQQQ QQQQQ  QQQQ  WWWW
+       #         Q  Q  Q Q  Q       Q   Q     W    
+       #   TO    QQQ  Q   Q  QQQ    Q   Q      WWW 
+       #         Q  Q QQQQQ     Q   Q   Q         W
+       #   THE   QQQ  Q   Q QQQQ  QQQQQ  QQQQ WWWW 
+       #
+   50   FOR I = 0 TO 199
+   51     READ C : POKE 1024 + I, C
+   52   NEXT I
+   60   PRINT : PRINT : PRINT : PRINT : PRINT
+
+       # actual logic
+
+       # read password into P$ - the POKE 19 change the input device to CASSETTE?
+   70   POKE 19, 1 : PRINT "PASSWORD PLEASE?" CHR$(5) : INPUT ""; P$ : POKE 19, 0
+       # print "processing" and a progress bar
+   80   PRINT : PRINT : PRINT CHR$(155) "PROCESSING... (THIS MIGHT TAKE A WHILE)" : PRINT "[                    ]"
+
+       # chkoff is offset of progressbar icons
+   90   CHKOFF = 11 * 40 + 1
+  200   IF LEN(P$) = 30 THEN GOTO 250
+       # print something in the first slot of the progress bar
+  210   POKE 1024 + CHKOFF + 0, 86 : POKE 0xD800 + CHKOFF + 0, 10
+  220   GOTO 31337
+       # print something else in the first slot of the progress bar
+  250   POKE 1024 + CHKOFF + 0, 83 : POKE 0xD800 + CHKOFF + 0, 5
+       # comments
+ 2000   REM NEVER GONNA GIVE YOU UP
+ 2001   REM
+       # ???
+ 2010   POKE 03397, 00199 : POKE 03398, 00013 : GOTO 2001
+       # print "NOPE" and hang
+31337   PRINT : PRINT "VERDICT: NOPE" : GOTO 31345
+31345   GOTO 31345
