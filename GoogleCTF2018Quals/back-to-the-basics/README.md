@@ -8,9 +8,11 @@ It was solved by [NotWearingPants](https://github.com/NotWearingPants), in [The 
 
 The description given in the website reads:
 ```
-You won't find any assembly in this challenge, only C64 BASIC. Once you get the password, the flag is CTF{password}. P.S. The challenge has been tested on the VICE emulator.
+You won't find any assembly in this challenge, only C64 BASIC.
+Once you get the password, the flag is CTF{password}.
+P.S. The challenge has been tested on the VICE emulator.
 ```
-Along with this **[attachment](https://github.com/TheMaccabees/ctf-writeups/GoogleCTF2018Quals/back-to-the-basics/attachment.zip)**.
+Along with this **[attachment](attachment.zip)**.
 
 ## Exploring the Attachment
 
@@ -24,6 +26,8 @@ As BASIC is a textual language, I open the file in my favorite text editor expec
 
 I open the file in a hex editor, and I see mostly ASCII letters and digits, mixed with some non-ASCII characters.
 I don't really know BASIC, but I expected to see a `PRINT` statement which I know exists, but I couldn't find one in the file.
+
+![Looking in a hex editor](images/hex_editor.png)
 
 IDA didn't understand the file either, so I searched for "c64 basic disassemblers" and found a program called *"PRG studio"* which claims it can work with `.prg` files.
 
@@ -72,7 +76,7 @@ There was only one one line I had trouble understanding - `2010   POKE 03397, 00
 According to the memory map, this is writing stuff inside the "Free BASIC program storage area".
 I guess it's free memory for the program to use, but no other part uses it.
 
-I still couldn't find the password check, so I decided to try another detokenizer to get a second opinion on the file contents, so I found `petcat` - a CLI that's apparently part of the VICE emulator, the emulator that was mentioned in the challenge description.
+I still couldn't find the password check, so I decided to try another detokenizer to get a second opinion on the file contents, so [I found](http://vice-emu.sourceforge.net/vice_15.html) `petcat` - a CLI that's apparently part of the VICE emulator, the emulator that was mentioned in the challenge description.
 
 I downloaded [VICE](http://vice-emu.sourceforge.net) and ran `petcat` on the `.prg` file, which resulted in the same output. 
 Well, since I just downloaded an emulator, might as well run the program on it, no?
@@ -86,12 +90,18 @@ It took forever to load, and then displayed the "BACK TO THE BASICS" banner as I
 I entered a 30 character password, and it showed a progress bar that slowly began to fill up with icons.
 Nowhere in the code was the progress bar filled other than the first character slot, so I searched online if progress bars are a built-in thing in C64, but they weren't.
 
+![Wrong Password in the Emulator](images/nope.png)
+
 Hmm... So apparently, the VICE emulator also comes with a built-in debugger that can show me the computer's memory (the command `m`).
 Viewing memory at address 3397 (0xd45) which is where the mysteryious `POKE` wrote showed something familiar - a part of the `.prg` file was there in memory! And the program was... changing it?
+
+![Viewing memory with VICE's built-in debugger](images/debugger.png)
 
 ## Self-Modifying Code
 
 Well... It turns out that what we're dealing with is a self-modifying BASIC program. Wat.
+
+![Wat.](images/wat.jpg)
 
 This explains how the emulator was running logic that wasn't in the code I extracted initially.
 This also means that the Commodore 64 must be interpreting and running the tokenized BASIC as-is from memory, it doesn't first detokenize it, or first turn it into assembly and jump to it.
@@ -127,6 +137,8 @@ With a bit of math (`es - load_address + sizeof(load_address)`), we can figure o
 After doing the addition in the file myself using a hex editor, many bytes are now printable characters, looks about right. NOTE: don't forget to take into account the deleted 6 bytes if you are dealing with the modified file.
 
 Running `petcat` again on the modified `.prg` file we get [more more code!](more_more_code.txt)
+
+And the big last line that was previously there is gone, that was probably the encoded data we opened.
 
 ## Woah, Math
 
@@ -314,6 +326,8 @@ We can now run it through `petcat` and get [the entire BASIC source code](entire
 
 ## Many, Many Math
 
+![Math Meme](images/math.jpg)
+
 If you scroll to the very bottom of the [entire code](entire_code.txt) we got, you'll see the lines:
 
 ```basic
@@ -341,7 +355,7 @@ We could also copy the values from the textual output of `petcat` to a separate 
 
 We now have [a script that solves all the challenges and extracts the password](decrypt_and_solve.py)!
 
-The script only takes in an input file, and prints:
+The script only takes in an input PRG file, and prints:
 
 ```
 Load address: 0x0801
@@ -365,25 +379,25 @@ decryption #17: ADDing from 0x74a2 to 0x797d with 0x9e
 decryption #18: ADDing from 0x7b00 to 0x7ff9 with 0xeb
 decryption #19: ADDing from 0x817c to 0x863f with 0x8f
 deleting weird stuff
-solved #00: 0.666666666428401 -> 0.671565706376017 by [0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0]
-solved #01: 0.666666666428401 -> 0.68261235812682 by [0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1]
-solved #02: 0.6666666666612316 -> 0.682552023325146 by [0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0]
-solved #03: 0.666666666428401 -> 0.667647300753773 by [0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1]
-solved #04: 0.6666666666612316 -> 0.68231080332774 by [0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0]
-solved #05: 0.6666666661955704 -> 0.67063873494047 by [0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0]
-solved #06: 0.6666666661955704 -> 0.729427094105661 by [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0]
-solved #07: 0.6666666666612316 -> 0.683334092143953 by [0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1]
-solved #08: 0.666666666428401 -> 0.729182238224924 by [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0]
-solved #09: 0.6666666671268929 -> 0.682352954987467 by [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1]
-solved #10: 0.6666666661955704 -> 0.745769257191599 by [1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0]
-solved #11: 0.666666666428401 -> 0.66674321750182 by [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1]
-solved #12: 0.6666666668940623 -> 0.682352764997662 by [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0]
-solved #13: 0.6666666666612316 -> 0.670634204987467 by [0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1]
-solved #14: 0.666666666428401 -> 0.733381925616444 by [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1]
-solved #15: 0.666666666428401 -> 0.66764801228422 by [0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0]
-solved #16: 0.666666666428401 -> 0.749690691474855 by [1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0]
-solved #17: 0.666666666428401 -> 0.682356773410023 by [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1]
-solved #18: 0.666666666428401 -> 0.670817057136476 by [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+solved #01: 0.666666666428401 -> 0.671565706376017 by [0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0]
+solved #02: 0.666666666428401 -> 0.68261235812682 by [0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1]
+solved #03: 0.6666666666612316 -> 0.682552023325146 by [0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0]
+solved #04: 0.666666666428401 -> 0.667647300753773 by [0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1]
+solved #05: 0.6666666666612316 -> 0.68231080332774 by [0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0]
+solved #06: 0.6666666661955704 -> 0.67063873494047 by [0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0]
+solved #07: 0.6666666661955704 -> 0.729427094105661 by [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0]
+solved #08: 0.6666666666612316 -> 0.683334092143953 by [0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1]
+solved #09: 0.666666666428401 -> 0.729182238224924 by [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0]
+solved #10: 0.6666666671268929 -> 0.682352954987467 by [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1]
+solved #11: 0.6666666661955704 -> 0.745769257191599 by [1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0]
+solved #12: 0.666666666428401 -> 0.66674321750182 by [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1]
+solved #13: 0.6666666668940623 -> 0.682352764997662 by [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0]
+solved #14: 0.6666666666612316 -> 0.670634204987467 by [0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1]
+solved #15: 0.666666666428401 -> 0.733381925616444 by [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1]
+solved #16: 0.666666666428401 -> 0.66764801228422 by [0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0]
+solved #17: 0.666666666428401 -> 0.749690691474855 by [1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0]
+solved #18: 0.666666666428401 -> 0.682356773410023 by [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1]
+solved #19: 0.666666666428401 -> 0.670817057136476 by [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 PASSWORD: b'LINK\x05D-LHSTS\xcdAND.40-BHd-FLOATS'
 ```
 
@@ -405,13 +419,72 @@ I see `LINKED-LISTS-AND-40-BAD-FLOATS`, but it doesn't work on the CTF website. 
 
 I run the PRG on the emulator and enter this password, and after waiting 5 minutes (the emulator is slow as hell), I see from the hearts and X's on the progress bar that I only got wrong the "IG" in "BIG".
 
-So I google ["3 letter words that start with B"](https://www.morewords.com/wordsbylength/3b/) and find nothing, so I ask my team and [or523](https://github.com/or523) guesses its "40 **bit** floats", and it works! :)
+So I google ["3 letter words that start with B"](https://www.morewords.com/wordsbylength/3b/) and find nothing, so I ask my team and [or523](https://github.com/or523) guesses it's "40 **bit** floats", and it works! :)
 
 The flag is `CTF{LINKED-LISTS-AND-40-BIT-FLOATS}` !
 
 ## Afterthought
 
-Phew, we got the flag in time, with guessing, but how can I change my script to actually get the correct password?
+Phew. We got the flag in time, with guessing. But can I change my script to actually get the correct password?
 
-- TODO: I went over everything until "More Self-Modifying Code", go over the rest
-- TODO: add images - Wat, progress bar fail, progress bar success, hex editor, meme "solve all the math"
+We now know from the password that the Commodore 64 probably represents floating point numbers with 40-bit registers, but I couldn't find any info on how exactly it does this (usually the number is separated into 2 parts), so I couldn't emulate it.
+
+So instead, let's do some analysis. We can separate the wrong and right passwords to groups of 13-bits, like the challenges in the PRG:
+
+```python
+wrong = ['0011001010010', '0100111001011', '0100101010000', '0001000101011', '0100001100100', '0010010110010', '1000101010110', '0101010110011', '1000001001110', '0100010001001', '1101000010110', '0000011001011', '0100010000100', '0010010001001', '1010110100011', '0001000110010', '1111001010000', '0100010101011', '0010100000000']
+
+right = ['0011001010010', '0100111001011', '0100101010001', '0001000101011', '0100001100101', '0010010110010', '1000101010110', '0101010110100', '1000001001110', '0100010001010', '1101000010110', '0000011001011', '0100010000101', '0010010001010', '1010110100011', '0001000110010', '1111001010000', '0100010101011', '0010100000000']
+```
+
+We can see what went wrong were six challenges: #3, #5, #8, #10, #13, and #14. *What made only them fail?*
+
+All the challenges have the same `p` values added to the starting `v`, and the goal `g` is different between every challenge, but the **`v` starting values have some patterns**:
+
+```
+ ( 1) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+ ( 2) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+*( 3) 0.6666666666612316235641
+ ( 4) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+*( 5) 0.6666666666612316235641
+ ( 6) 0.6666666666612316235641 - 0.00000000046566128730773925781250
+ ( 7) 0.6666666666612316235641 - 0.00000000046566128730773925781250
+*( 8) 0.6666666666612316235641
+ ( 9) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+*(10) 0.6666666666612316235641 + 0.00000000046566128730773925781250
+ (11) 0.6666666666612316235641 - 0.00000000046566128730773925781250
+ (12) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+*(13) 0.6666666666612316235641 + 0.00000000023283064365386962890625
+*(14) 0.6666666666612316235641
+ (15) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+ (16) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+ (17) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+ (18) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+ (19) 0.6666666666612316235641 - 0.00000000023283064365386962890625
+```
+
+I've marked the `v` values of the challenges we got wrong.
+
+We can see that we **got right all the challenges that subtract the second operand** in the `v` calculation, and we **got wrong** all the challenges that **add the second operand or have no second operand at all**.
+
+Curious. The `v` values seem to affect our success. The values of the challenges we got right (the ones that subtract) have only two possibilities, what happens if we just choose one and start with it for every challenge?
+
+We can add the line
+
+```python
+start = 0.6666666666612316235641 - 0.00000000023283064365386962890625
+```
+
+before line 57 in [our script](decrypt_and_solve.py) (in the function `solve_challenge`), [run it](decrypt_and_solve_fixed.py), and it prints:
+
+```
+PASSWORD: b'LINKED-LISTS-AND-40-BIT-FLOATS'
+```
+
+Success! Also using the other value with subtraction for `v` prints the correct answer.
+
+I think I've redeemed myself after guessing the flag, back to the BASICs - solved!
+
+![Entering the Flag](images/solved_flag.png)
+
+This challenge was awesome, I would have never used a Commodore 64 emulator or BASIC code otherwise, thanks Google :)
