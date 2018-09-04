@@ -58,7 +58,7 @@ scanning the code from top to bottom we can create the following table:
 |--------------|--------------------|-----------------
 |```empty```|http://php.net/manual/en/function.empty.php|no
 |```parse_str```|http://php.net/manual/en/function.parse-str.php|yes
-|```md5```|urlhttp://php.net/manual/en/function.md5.php|yes
+|```md5```|http://php.net/manual/en/function.md5.php|yes
 
 Great now we have  some leades:
 ## ```md5```
