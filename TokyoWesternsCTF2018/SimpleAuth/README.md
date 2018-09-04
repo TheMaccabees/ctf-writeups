@@ -99,10 +99,10 @@ if ($action === 'auth') {
 We can see that the only interesting checks are ```$action === 'auth'``` and ```!empty($hashed_password) && ...``` and we know that we can set ```$hashed_password``` arbitrarily using our query string
 
 ## Developing The Exploit
-Now with the use of the vulnerable ```parse_str``` and knowing the flow we need to take to print our flag the following url when sent:
+Now with the use of the vulnerable ```parse_str``` and knowing the flow we need to take to print our flag. We can simply browse to the following url:
 
 ```http://ssimpleauth.chal.ctf.westerns.tokyo/?action=auth&hashed_password=c019f6e5cd8aa0bbbcc6e994a54c757e```
 
-will result with:
+which results in the flag:
 
 ```TWCTF{d0_n0t_use_parse_str_without_result_param}```
