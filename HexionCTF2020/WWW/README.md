@@ -69,7 +69,7 @@ Now that we have the ability to write as many bytes as we want - we understand t
 Leaking these addresses can be used by abusing the fact we control the format string to the `printf` function. For example - we can abuse the `"%15$p"` feature of format-strings, in order to leak the "15th argument" of `printf` (meaning we can just leak data from any offset of the stack we want). By trial-and-error, we get to the following conclusions:
 
 1. `"%13$p"` is the return address of the `main` address, which is an address inside `libc` - of the `__libc_start_main` function.
-2. `"%15p"` is an address of the stack, which is in constant offset from `buffer`.
+2. `"%15$p"` is an address of the stack, which is in constant offset from `buffer`.
 
 ### Resuming execution after leak
 
@@ -90,12 +90,12 @@ After leaking the addresses of both `libc` and the stack, we can just write our 
 
 1. First session:
    1. Increase write-primitive amount by overwriting `amount` variable.
-   2. Write `"%15p"` to the format string in order to leak a stack address.
+   2. Write `"%15$p"` to the format string in order to leak a stack address.
    3. Write `_start` address to the return address to start a new session of WWW primitives.
    4. Finish loop and leak stack address! (now we have absolute R/W primitive).
 2. Second session:
    1. Increase write-primitive amount by overwriting `amount` variable.
-   2. Write `"%13p"` to the format string in order to leak a `libc` address.
+   2. Write `"%13$p"` to the format string in order to leak a `libc` address.
    3. Write `_start` address to the GOT entry of `__stack_chk_fail`.
    4. Write 0 on the stack cookie.
    5. Finish loop and leak libc address!
