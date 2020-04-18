@@ -21,7 +21,7 @@ When viewing the website in the browser - we get a simple "notes" application, w
 
 Example for how that looks in the browser:
 
-![notes-web-empty](/home/orc/Projects/CTFs/Writeups/TheMaccabeesWriteups/HexionCTF2020/Notes/notes-web-empty.png) **--->** ![notes-web-empty](/home/orc/Projects/CTFs/Writeups/TheMaccabeesWriteups/HexionCTF2020/Notes/notes-web-filled.png)
+![notes-web-empty](notes-web-empty.png) **--->** ![notes-web-empty](notes-web-filled.png)
 
 In addition, in the received HTML page, there is a comment:
 
