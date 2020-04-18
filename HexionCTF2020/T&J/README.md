@@ -3,6 +3,8 @@
 This task was part of the 'Misc' category at the 2020 Hexion CTF (during 11-13 April 2020).
 It was solved [The Maccabees](https://ctftime.org/team/60231) team.
 
+Full solution (with python data extraction & plotting) is available [here](solve.py).
+
 
 
 ## The challenge
