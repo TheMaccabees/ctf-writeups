@@ -1,0 +1,3 @@
+*.shellcode
+*.elf
+*.bin
