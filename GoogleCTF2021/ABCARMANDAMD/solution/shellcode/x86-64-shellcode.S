@@ -36,7 +36,7 @@ _start:
     pop rcx
 
 encoded_add_opcodes1:
-    # Will be "add al, 0x20"
+    # Will be "add al, 0x100"
     .byte 0x66
     .byte 0x5d # Will be 0x05
     .byte 0x58 # Will be 0x00
