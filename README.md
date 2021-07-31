@@ -17,6 +17,12 @@ Writeups of [The Maccabees](https://ctftime.org/team/60231) CTF team!
 
 
 
+## hxp CTF 2020
+
+* [nanothrope (solution only)](./hxpCTF2020/nanothorpe/solve.py)
+
+
+
 ## Google CTF 2020
 
 * [Tracing (solution only)](.//GoogleCTF2020/Tracing/exploit.py)
