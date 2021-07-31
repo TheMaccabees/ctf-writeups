@@ -17,6 +17,13 @@ Writeups of [The Maccabees](https://ctftime.org/team/60231) CTF team!
 
 
 
+## Google CTF 2020
+
+* [Tracing (solution only)](.//GoogleCTF2020/Tracing/exploit.py)
+* [Writeonly (solution only)](./GoogleCTF2020/Writeonly/solution)
+
+
+
 ## Hexion CTF 2020
 
 * [Hangman (writeup)](./HexionCTF2020/Hangman/README.md)
