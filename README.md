@@ -4,6 +4,12 @@ Writeups of [The Maccabees](https://ctftime.org/team/60231) CTF team!
 
 
 
+## Intent CTF 2021
+
+* [Pattern Institute (solution only)](IntentCTF2021/PatternInstitute/solution)
+
+
+
 ## Google CTF 2021
 
 * [ABC ARM AND AMD (writeup)](./GoogleCTF2021/ABCARMANDAMD/README.md)
