@@ -4,6 +4,12 @@ Writeups of [The Maccabees](https://ctftime.org/team/60231) CTF team!
 
 
 
+## Dragon CTF 2021
+
+* [Shellcode Verifier (solution only)](DragonCTF2021/ShellcodeVerifier/solution/compiler/compiler.c)
+
+
+
 ## Intent CTF 2021
 
 * [Pattern Institute (solution only)](IntentCTF2021/PatternInstitute/solution)
