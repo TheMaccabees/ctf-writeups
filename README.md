@@ -3,6 +3,11 @@
 Writeups of [The Maccabees](https://ctftime.org/team/60231) CTF team!
 
 
+## hxp CTF 2021
+
+* [日本旅行 (solution only)](hxpCTF2021/日本旅行/solution/payload/payload.c)
+
+
 
 ## Dragon CTF 2021
 
