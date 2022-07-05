@@ -2,6 +2,13 @@
 
 Writeups of [The Maccabees](https://ctftime.org/team/60231) CTF team!
 
+## Google CTF 2022
+
+* [Appnote.txt (solution only)](GoogleCTF2022/Appnote.txt/solve.py)
+* [FixedASLR (solution only)](GoogleCTF2022/FixedASLR/solve.py)
+* [Segfault Labyrinth (solution only)](GoogleCTF2022/SegfaultLabyrinth/solution/shellcode/solution.c)
+* [Weather (solution only)](GoogleCTF2022/Weather/solve.py)
+
 
 ## hxp CTF 2021
 
