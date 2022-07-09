@@ -1,7 +1,15 @@
 #!/bin/bash
 
-# Compile and extract the shellcode
-gcc solution.c syscall.S -nostartfiles -O3 -nostdlib -fPIC -fpie -fcf-protection=none -o solution.elf
+# Compile Basic solution
+gcc basic/solution.c syscall.S -nostartfiles -O3 -nostdlib -fPIC -fpie -fcf-protection=none -o solution.elf
+
+# Compile "Hard mode" solution
+# gcc hard/solution.c syscall.S -nostartfiles -O3 -nostdlib -fPIC -fpie -fcf-protection=none -o solution.elf
+
+# Compile "Impossible mode" solution
+# gcc impossible/solution.S -nostartfiles -O3 -nostdlib -fPIC -fpie -fcf-protection=none -o solution.elf
+
+# Extract the shellcode
 objcopy -j.text -Obinary solution.elf solution.shellcode
 
 # Add a "lea rsp,[rip+0xcf0]" to allocate a stack (at the end of the current page)
