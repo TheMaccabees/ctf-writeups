@@ -38,11 +38,11 @@ The "labyrinth" looks something like that:
 
 Let us explain:
 
-1. All the memory addresses are done using `mmap` and `rand` combination - making sure each allocation location is completely random from the others.
-2. The labyrinth are made out of 10 "nodes" (each allocate at its own random page).
-   Each nodes contains 16 pointers. 15 of those pointers point to an allocated page with `PROT_NONE` protection (which means that any access to is - will *segfault* the program 😉, because it is neither readable nor writable).
-   The remaining pointer (which its offset is random, of course) points to another node just like we describe.
-3. After 10 nodes - in the last node, the valid pointer points to a memory area (which is writeable) and contains the flag.
+1. All the memory addresses are allocated using `mmap` and `rand` combination - making sure each allocation address is completely random and disconnected from the others.
+2. The labyrinth is made out of 10 "nodes" (each allocated at its own random page).
+   Each node contains 16 pointers. 15 of those pointers point to an allocated page with `PROT_NONE` protection (which means that any access to is - will *segfault* the program 😉, because it is neither readable nor writable).
+   The remaining pointer (which its offset inside the node is random, of course) points to another node just like we described.
+3. After 10 nodes - in the last node, the valid pointer points to a memory area (which is readable/writable) and contains the flag.
 4. The start of the labyrinth (pointer to the first node) is given to our shellcode as its only argument.
 
 So the challenge is pretty obvious: given the start of the labyrinth, we must find a way to "navigate" the correct pointers in order to reach (and read) the flag.
@@ -128,7 +128,7 @@ This makes sure that no general information about the program is available to us
 
 As we saw, we get the base of the labyrinth as the first argument for our shellcode (`rdi`). Traversing the labyrinth itself should be easy, but the only problem is to be able to differentiate between the invalid pointers (which will cause us to fault) and the valid pointers.
 
-So, the only thing that we actually need is some kind of "probe" functionality - an "oracle" that will be able to tell us whether a pointer points to a memory area that is readable or not. 
+So, the only thing that we actually need is some kind of "probe" functionality - an "oracle" that will be able to tell us whether a pointer points to a memory area that is readable or not.
 
 
 
@@ -171,7 +171,7 @@ This allows us to use `write` as a readability-probe! We just use `write` with s
 
 ### Traversing the labyrinth
 
-So, using this `write`-probe, this is actually very simple for us to write the shellcode that solves the challenge. We wrote the solution in C (because we are lazy 😋) using our usual "shellcode in C" infrastructure (understanding what we're doing there is left as an exercise for the reader - check out the full solution on github). Just notice that `syscall_func` calls a raw syscall, just like [`syscall(2)`](https://man7.org/linux/man-pages/man2/syscall.2.html) does.
+So, using this `write`-probe, it is actually very simple for us to write the shellcode that solves the challenge. We wrote the solution in C (because we are lazy 😋) using our usual "shellcode in C" infrastructure (understanding what we're doing there is left as an exercise for the reader - check out the full solution on github). Just notice that `syscall_func` calls a raw syscall, just like [`syscall(2)`](https://man7.org/linux/man-pages/man2/syscall.2.html) does.
 
 So our C code that solves the challenge ([full file](solution/shellcode/basic/solution.c))
 
@@ -239,9 +239,9 @@ That's it! Sending our shellcode to the server (215-bytes) gives us the flag: `C
 
 ## Hard mode
 
-The above solution was pretty easy & trivial, so we though maybe we could make it more interesting.
+The above solution was pretty easy & trivial, so we thought maybe we could make it more interesting (notice: this is just a thought experiment; the actual challenge didn't go this far to add more constraints and limitations).
 
-Let's add another "hard mode" constraint: the first instruction of our shellcode must be `xor rdi, rdi`. This practically means that we don't get any arguments, and so we don't know in advance the base of the labyrinth.
+So, let's add another "hard mode" constraint: the first instruction of our shellcode must be `xor rdi, rdi`. This practically means that we don't get any arguments, and so we don't know in advance the base of the labyrinth.
 
 What do we do now?
 
@@ -253,14 +253,14 @@ Using our beloved `mmap` syscall, we will create a technique that will allow us 
 
 1. Find the lowest allocated address in the process (we'll see how in a bit).
 2. Probe this address for readability (using `write` - just like we did before).
-3. If it is readable, start reading from it, and if the contents there start with `"CTF{"` - this is the flag!
-4. Otherwise - unmap (using `munmap`) the address, and go back in a loop to step 1.
+3. If it is readable, start reading from it, and if the memory contents there start with `"CTF{"` - this is the flag!
+4. Otherwise - unmap (using `munmap`) the address, and go back in a loop to step #1.
 
 This potentially will allow us to find the flag, without even knowing what is the structure or contents of the labyrinth itself!
 
 
 
-To get intuition on why this have high chances of working, a little (partial) snippet from the procfs maps of the challenge process after generating the labyrinth:
+To get intuition on why this have high chances of working, a little (partial) snippet from the procfs maps (`/proc/<pid>/maps`) of the challenge process after generating the labyrinth:
 
 ```
 216232b000-216232c000 rwxp 00000000 00:00 0 
@@ -345,7 +345,7 @@ What if we want ensure the allocation will be exactly where we want? In order to
 
 ```
 
-`MAP_FIXED` allows us to to tell the kernel: don't use `addr` only as a hint - map exactly there. `MAP_FIXED` is useful for many scenarios, but need to be used carefully - as if there are already memory mappings when we want to `mmap` with `MAP_FIXED` - they will be forcefully removed (refer to `Using MAP_FIXED safely` in the manual 🤗).
+`MAP_FIXED` allows us to to tell the kernel: don't use `addr` only as a hint - map exactly there. `MAP_FIXED` is useful for many scenarios, but need to be used carefully - as if there are already existing memory mappings where we want to `mmap` with `MAP_FIXED` - they will be forcefully removed (refer to `Using MAP_FIXED safely` in the manual 🤗).
 
 In order to prevent such bugs, since Linux 4.17, we now have the `MAP_FIXED_NOREPLACE` flag!
 
@@ -477,6 +477,8 @@ int _start(void)
 }
 ```
 
+Notice that on each iterations, if the lowest allocated memory address doesn't contain the flag - we unmap it (using `munmap`) in order to find the next one in the next iteration.
+
 And very quickly, we get the flag from the server!
 
 
@@ -495,7 +497,7 @@ Is it even possible?
 
 The Thread-Local storage, or the TLS for short, is a feature used in order to save information on a per-thread basis.
 
-On Linux environments that use glibc, the TLS is usually accesses using the `fs` segment register (which is set-up during glibc initialization, to point inside the TLS inside glibc itself).
+On Linux environments that use glibc, the TLS is usually accesses using the `fs` segment register (which is set-up during glibc initialization, to point inside the TLS area, which is inside glibc itself).
 (You may know `fs:28h` as the offset in the TLS that stores the stack cookie).
 
 And this is exactly the problem: the program tries to "isolate" our shellcode from the original binary by zeroing-out all registers (including `rsp` - the stack register) - but we can still access the TLS and gllibc memory using `fs`!
@@ -506,13 +508,13 @@ But how finding glibc will help us in finding the flag?
 
 ### Observation: the stack is messy
 
-If we go back to the original challenge binary, we can observe an interesting fact: by examining closely the stack contents just before branching to our shellcode, we are surprised to see there are some "leftovers": as `[rsp-0x28]` (which is unallocated stack space) - we see there is a pointer to our flag!
+If we go back to the original challenge binary, we can observe an interesting fact: by examining closely the stack contents just before branching to our shellcode, we are surprised to see there are some "leftovers": at `[rsp-0x28]` (which is unallocated stack space) - we see there is a pointer to our flag!
 
 ![](pics/gdb.png)
 
 We assume this is some unallocated-stack artifact that was left there after the `fread` call that read the flag.
 
-This is very news good to us, as it makes all the labyrinth stuff useless, assuming we can find and read from the stack.
+Those are very news good to us, as it makes all the labyrinth stuff useless in hiding the flag - assuming we can find the stack and read from it this pointer.
 
 
 
@@ -526,7 +528,7 @@ One of my favorite articles about the subject is called [About ELF Auxiliary Vec
 
  ![](pics/execve-stack.png)
 
-On dynamically-linked executables, in addition to the actual ELF files being `execve`-ed, the dynamic linker (usually `ld`) is also loaded, and it is the one who is first being executed upon process initialization. `ld` is responsible for loading additional `.so` files, such as `libc.so`, and transfers some of the information to them - specifically, the process environment it got from the stack.
+On dynamically-linked executables, in addition to the actual ELF file being `execve`-ed, the dynamic linker (usually `ld`) is also loaded, and it is the one who is first being executed upon process initialization. `ld` is responsible for loading additional `.so` files, such as `libc.so`, and transfers some of the information to them - specifically, the process environment it got from the stack.
 
 This is needed as `libc` got the [`getenv(3)`](https://man7.org/linux/man-pages/man3/getenv.3.html) API (which means it should have access to the environment). Specifically, `glibc` (GNU C Library - the one used here and on most desktop Linux distributions), saves a global variable called `environ` - which points to the environment at the bottom of the process stack. This is just we need! A place in `libc` which points to stack.
 
@@ -572,7 +574,7 @@ _start:
 Of course, theoretically, we don't know the `libc` version and offsets on the server - so we must develop something more complex that will use clever heuristics to deduce all the offsets.
 But fortunately, the same shellcode that worked on our PC also worked successfully on the server - first try!
 
-And we got the flag without using the labyrinth of syscalls at all! (expect, of course, the last `write` syscall - which is sadly a must for us to be able to send the flag back..)
+And we got the flag without using the labyrinth, and without syscalls at all! (expect, of course, the last `write` syscall - which is sadly a must for us to be able to send the flag back..)
 
 
 
