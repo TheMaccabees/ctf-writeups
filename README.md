@@ -4,6 +4,12 @@ Writeups of [The Maccabees](https://ctftime.org/team/60231) CTF team!
 
 
 
+## KITCTFCTF 2022
+
+* [movsh (solution only)](KITCTFCTF2022/movsh/solution/solve.py)
+
+
+
 ## Google CTF 2022
 
 * [Segfault Labyrinth (writeup)](GoogleCTF2022/SegfaultLabyrinth/README.md)
